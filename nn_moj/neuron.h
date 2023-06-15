@@ -4,32 +4,34 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include "activation_function.h"
 
 class Neuron {
 public:
-    Neuron(int n_weights, int activation_function);
+    Neuron(int n_weights, int activation_function, Factory* act_function_factory);
     ~Neuron()= default;
 
-    void activate(std::vector<float> inputs);
+    void activate(std::vector<double> inputs);
     void transfer();
-    float transfer_derivative();
+    double transfer_derivative();
 
     // return mutable reference to the neuron weights
-    std::vector<float>& get_weights(void) { return m_weights; };
+    std::vector<double>& get_weights(void) { return m_weights; };
 
-    float get_output(void) { return m_output; };
-    float get_activation(void) { return m_activation; };
-    float get_delta(void) { return m_delta; };
+    double get_output(void) { return m_output; };
+    double get_activation(void) { return m_activation; };
+    double get_delta(void) { return m_delta; };
 
-    void set_delta(float delta) { m_delta = delta; };
+    void set_delta(double delta) { m_delta = delta; };
 
 private:
     size_t m_nWeights;
-    std::vector<float> m_weights;
-    float m_activation=0;
-    float m_output;
-    float m_delta;
+    std::vector<double> m_weights;
+    double m_activation=0;
+    double m_output;
+    double m_delta;
     int m_activation_function;
+    Factory* act_function_factory;
 
 private:
     void initWeights(int n_weights);

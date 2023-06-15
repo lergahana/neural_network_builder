@@ -43,12 +43,12 @@ Window {
                         id: layersText
                         text: "Select number of hidden layers"
                         font.pixelSize: 14
+                        bottomPadding: 5
                     }
 
                     SpinBox {
                         id: layers
                         width: layersText.width
-                        height: 36
                         topPadding: 2
 
                         from: 1
@@ -79,12 +79,12 @@ Window {
                                 text: "Select number of neurons in layer " + (index+1)
                                 font.pixelSize: 14
                                 topPadding: 15
+                                bottomPadding: 5
                             }
 
                             SpinBox {
                                 id: numNeurons
                                 width: layersText.width
-                                height: 36
                                 topPadding: 2
 
                                 from: 1

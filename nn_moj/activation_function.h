@@ -1,36 +1,40 @@
-
 #ifndef ACTIVATION_FUNCTIONS_H
 #define ACTIVATION_FUNCTIONS_H
 
 #include <vector>
+#include <iostream>
 
 class ActivationFunction {
+
 public:
     ActivationFunction(int m_function);
 
     ~ActivationFunction();
 
+//    virtual double activate(double x)=0;
+//    virtual double activateDerivative(double x)=0;
+
     // Sigmoid activation function
-    float sigmoid(float x);
+    double sigmoid(double x);
 
     // ReLU activation function
-    float relu(float x);
+    double relu(double x);
 
     // Leaky ReLU activation function
-    float leaky_relu(float x, float alpha);
+    double leaky_relu(double x, double alpha);
 
     // Tanh activation function
-    float tanh(float x);
+    double tanh(double x);
 
     // Softmax activation function
-    std::vector<float> softmax(std::vector<float> x);
+    std::vector<double> softmax(std::vector<double> x);
 
     // Derivatives of functions
-    float der_sigmoid(float x);
-    float der_relu(float x);
-    float der_leaky_relu(float x, float alpha);
-    float der_tanh(float x);
-    //std::vector<float> der_softmax(std::vector<float> x);
+    double der_sigmoid(double x);
+    double der_relu(double x);
+    double der_leaky_relu(double x, double alpha);
+    double der_tanh(double x);
+    //std::vector<double> der_softmax(std::vector<double> x);
 
 
 private:
@@ -38,4 +42,75 @@ private:
 
 };
 
+// Add more activation functions as needed
+class Sigmoid : public ActivationFunction {
+
+public:
+    Sigmoid();
+    double activate(double x);
+    double activateDerivative(double x);
+
+};
+
+// Abstract factory class
+class Factory {
+public:
+    ActivationFunction* createFunction() {
+        return new ActivationFunction(1);
+    };
+};
+
+// Concrete factory class
+class AFSigmoid : public Factory {
+public:
+//    ActivationFunction* createFunction() override {
+//        std::cout << "sigmoid napravljen" << std::endl;
+//        return new Sigmoid();
+//    }
+};
+
 #endif // ACTIVATION_FUNCTIONS_H
+
+//#ifndef ACTIVATION_FUNCTION_H
+//#define ACTIVATION_FUNCTION_H
+
+//#include <cmath>
+//#include <iostream>
+
+//class ActivationFunction {
+
+//public:
+//    virtual double activate(double x)=0;
+//    virtual double activateDerivative(double x)=0;
+//};
+
+
+//// Add more activation functions as needed
+//class Sigmoid : public ActivationFunction {
+
+//public:
+//    double activate(double x) override;
+//    double activateDerivative(double x) override;
+
+//};
+
+//// Abstract factory class
+//class Factory {
+//public:
+//    ActivationFunction* createFunction() {
+//        return new Sigmoid();
+//    };
+//};
+
+//// Concrete factory class
+//class AFSigmoid : public Factory {
+//public:
+////    ActivationFunction* createFunction() override {
+////        std::cout << "sigmoid napravljen" << std::endl;
+////        return new Sigmoid();
+////    }
+//};
+
+
+//#endif // ACTIVATION_FUNCTION_H
+

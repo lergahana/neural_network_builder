@@ -21,29 +21,29 @@ ActivationFunction::~ActivationFunction() {
 }
 
 // Sigmoid activation function
-float ActivationFunction::sigmoid(float x) {
+double ActivationFunction::sigmoid(double x) {
     return 1.0 / (1.0 + std::exp(-x));
 }
 
 // ReLU activation function
-float ActivationFunction::relu(float x) {
-    return static_cast<float>(std::max(0.0, static_cast<double>(x)));
+double ActivationFunction::relu(double x) {
+    return static_cast<double>(std::max(0.0, static_cast<double>(x)));
 }
 
 // Leaky ReLU activation function
-float ActivationFunction::leaky_relu(float x, float alpha) {
+double ActivationFunction::leaky_relu(double x, double alpha) {
     return x < 0 ? alpha * x : x;
 }
 
 // Tanh activation function
-float ActivationFunction::tanh(float x) {
+double ActivationFunction::tanh(double x) {
     return std::tanh(x);
 }
 
 // Softmax activation function
-std::vector<float> ActivationFunction::softmax(std::vector<float> x) {
-    std::vector<float> result(x.size());
-    float sum = 0;
+std::vector<double> ActivationFunction::softmax(std::vector<double> x) {
+    std::vector<double> result(x.size());
+    double sum = 0;
 
     // Compute the sum of exponentials of x
     for (int i = 0; i < x.size(); i++) {
@@ -59,22 +59,38 @@ std::vector<float> ActivationFunction::softmax(std::vector<float> x) {
     return result;
 }
 
-float ActivationFunction::der_sigmoid(float x){
+double ActivationFunction::der_sigmoid(double x){
     return x * (1.0 - x);
 }
 
-float ActivationFunction::der_relu(float x){
+double ActivationFunction::der_relu(double x){
     return x > 0 ? 1 : 0;
 }
 
-float ActivationFunction::der_leaky_relu(float x, float alpha){
+double ActivationFunction::der_leaky_relu(double x, double alpha){
     return x > 0 ? 1 : alpha;
 }
 
-float ActivationFunction::der_tanh(float x){
+double ActivationFunction::der_tanh(double x){
      return 1.0 - x * x;
 }
 
-//std::vector<float> ActivationFunction::der_softmax(std::vector<float> x){
+////std::vector<double> ActivationFunction::der_softmax(std::vector<double> x){
 
-//}
+////}
+
+//#include "activation_function.h"
+//#include <iostream>
+
+double Sigmoid::activate(double x) {
+    return (1.0 / (1.0 + std::exp(-x)));
+}
+
+double Sigmoid::activateDerivative(double x) {
+    double sigmoid = (1.0 / (1.0 + std::exp(-x)));
+    return (sigmoid * (1 - sigmoid));
+}
+
+
+
+

@@ -5,11 +5,12 @@
 #include <iostream>
 #include <vector>
 #include "neuron.h"
+#include "activation_function.h"
 
 
 class Layer {
 public:
-    Layer(int n_neurons, int n_weights, int activation_function);
+    Layer(int n_neurons, int n_weights, int activation_function, Factory* act_function_factory);
     ~Layer();
 
     // return mutable reference to the neurons
@@ -19,7 +20,7 @@ public:
     std::string get_function(void);
 
 private:
-    void initNeurons(int n_neurons, int n_weights, int activation_function);
+    void initNeurons(int n_neurons, int n_weights, int activation_function, Factory* act_function_factory);
 
     std::vector<Neuron> m_neurons;
     int m_activation_function;
