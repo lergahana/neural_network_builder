@@ -3,6 +3,11 @@
 
 #include <QObject>
 #include <QtQml/qqmlregistration.h>
+#include <QDebug>
+#include "network.h"
+#include "neuron.h"
+#include "activation_function.h"
+#include "layer.h"
 
 class MenuObject : public QObject
 {
@@ -13,12 +18,16 @@ class MenuObject : public QObject
     Q_PROPERTY(std::vector<int> neurons READ neurons WRITE setNeurons NOTIFY neuronsChanged)
     Q_PROPERTY(std::vector<int> functions READ functions WRITE setFunctions NOTIFY functionsChanged)
 
+
 public:
     MenuObject(int n = 1, QObject* parent=nullptr);
 
     int layers() const;
     std::vector<int> neurons() const;
     std::vector<int> functions() const;
+    Network* network;
+    int n_inputs=2;
+    int n_outputs=2;
 
 public slots:
     void setLayers(int n);
@@ -26,6 +35,7 @@ public slots:
     void setFunctions(std::vector<int>);
     void setLayerNeurons(int l, int n);
     void setLayerFunction(int l, int n);
+    void handleButtonClick();
 
 signals:
     void layersChanged(int);

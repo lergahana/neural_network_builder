@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Window 2.3
 import QtQuick.Controls 2.5
-import QtQuick.Controls.Material 2.3
+import QtQuick.Controls.Material 2
 import QtQuick.Layouts
 import QtQuick.Shapes
 import QtQml.Models
@@ -21,6 +21,7 @@ Window {
 
     required property MenuObject _menu
     property var nodes: []
+    //property int MAXNODES: 10
 
     RowLayout {
         width: window.width
@@ -30,6 +31,8 @@ Window {
             id: menu
             width: 0.3*parent.width
             height: parent.height
+            anchors.top: window.top
+            color: "#E8E9EB"
 
             ScrollView{
                 anchors.fill: parent
@@ -50,6 +53,8 @@ Window {
                         id: layers
                         width: layersText.width
                         topPadding: 2
+
+                        editable: true
 
                         from: 1
                         to: 10
@@ -86,6 +91,8 @@ Window {
                                 id: numNeurons
                                 width: layersText.width
                                 topPadding: 2
+
+                                editable: true
 
                                 from: 1
                                 to: 10
@@ -132,6 +139,7 @@ Window {
                     }
 
                     Button {
+                        objectName: "startTraining"
                         text: "Start training"
                         onClicked: {
                             menu.visible = false
@@ -150,11 +158,17 @@ Window {
             height: parent.height
             width: 0.7 * parent.width
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+
 
             Qan.GraphView {
+                id: graphView
                 anchors.fill: parent
+                navigable: true
+                grid: Qan.AbstractLineGrid
+
                 graph : Qan.Graph {
-                    id: moj_graf
+                    id: graph
                     objectName: "graph"
                     anchors.fill: parent
 
@@ -162,19 +176,24 @@ Window {
                         drawNN()
                         defaultEdgeStyle.lineWidth = 1.5
                         defaultEdgeStyle.lineType = Qan.EdgeStyle.Straight
+
                     }
                 }
             }
 
+
             Pane {
                 id: networkOutput
+                objectName: "networkOutput"
                 width: 0.4 * parent.width
                 height: 0.5 * parent.height
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 visible: false
-                Material.elevation: 10
+                Material.elevation: 100
+                opacity: 0.8
                 Text {
+                    objectName: "networkOutputText"
                     text: qsTr("Network output: ")
                     font.pixelSize: 14
                     leftPadding: 5
@@ -206,32 +225,50 @@ Window {
 
 
     function drawNN(){
-        moj_graf.clearGraph();
+        graph.clearGraph();
         nodes = [];
 
+        var numRows = _menu.layers;
+        var circleSize = 40;
+        var spacing = 80;
+
+        var nodeItem = Qt.createComponent("CustomNode.qml");
+
         // Create nodes
-        for(var i = 0; i < _menu.layers; i++){
+        for(var i = 0; i < numRows; i++){
             nodes.push([]);
+
+            var numCircles = _menu.neurons[i];
+            var rowWidth = numCircles * circleSize + (numCircles - 1) * spacing;
+            var startX = (network.width - rowWidth) / 2 - network.width/2;
+
+
             for (var j = 0; j < _menu.neurons[i]; j++){
-                var node = moj_graf.insertNode(Qt.createComponent("CustomNode.qml"));
-                node.item.y = (i+1)*120;
-                node.item.x = (j+1)*80;
+                var node = graph.insertNode(nodeItem);
+                var circleX = startX + j * (circleSize + spacing);
+                var circleY = i * (circleSize + spacing);
+
+                node.item.x = circleX;
+                node.item.y = circleY;
+
                 nodes[i].push(node);
             }
+
         }
 
+
         // Add lines connecting nodes
-        for(i = 0; i < _menu.layers-1; i++){
+        for(i = 0; i < numRows-1; i++){
             for (j = 0; j < _menu.neurons[i]; j++){
                 for (var z = 0; z < _menu.neurons[i+1]; z++){
-                   moj_graf.insertEdge(nodes[i][j], nodes[i+1][z]);
+                   graph.insertEdge(nodes[i][j], nodes[i+1][z]);
                 }
             }
         }
 
+        graphView.fitContentInView(network.width - 70, network.height - 70);
     }
 
-
+    onWindowStateChanged: drawNN()
 
 }
-

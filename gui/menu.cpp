@@ -60,3 +60,18 @@ void MenuObject::setLayerFunction(int layer, int num)
     setFunctions(m_functions);
 }
 
+void MenuObject::handleButtonClick()
+{
+    network = new Network();
+    std::vector<LayerInfo> hidden;
+    for (int i = 0; i < m_layers; i++){
+        LayerInfo layer;
+        layer.n_neurons = m_neurons[i];
+        ActivationFunction* act_function = new Sigmoid();
+        layer.act_function = act_function;
+        hidden.push_back(layer);
+    }
+    network->initialize_network(n_inputs, hidden, n_outputs);
+    qDebug() << "Network initialised";
+}
+

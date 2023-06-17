@@ -2,30 +2,6 @@ cmake_minimum_required(VERSION 3.16)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2)
 
-######################################################
-#include(FetchContent)
-
-#FetchContent_Declare(qanava
-#        GIT_REPOSITORY https://github.com/cneben/QuickQanava.git
-#        GIT_TAG origin/master)
-
-#FetchContent_GetProperties(qanava)
-#if(NOT qanava_POPULATED)
-#    FetchContent_Populate(qanava)
-#    add_subdirectory(${qanava_SOURCE_DIR} ${qanava_BINARY_DIR} EXCLUDE_FROM_ALL)
-#endif()
-
-
-#FetchContent_Declare(fmt
-#        GIT_REPOSITORY https://github.com/fmtlib/fmt
-#        GIT_TAG origin/master)
-
-#FetchContent_GetProperties(fmt)
-#if(NOT fmt_POPULATED)
-#    FetchContent_Populate(fmt)
-#    add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR} EXCLUDE_FROM_ALL)
-#endif()
-######################################################
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -57,12 +33,12 @@ set_target_properties(appzadnji PROPERTIES
 
 
 target_link_libraries(appzadnji
-    PRIVATE Qt6::QuickControls2 Qt6::Quick nn_moj
-    PUBLIC QuickQanava
+    PRIVATE Qt6::QuickControls2 Qt6::Quick neural_network
+    PUBLIC QuickQanava neural_network
 )
 
 target_include_directories(appzadnji
-    PUBLIC ${PROJECT_SOURCE_DIR}/nn_moj/
+    PUBLIC ${PROJECT_SOURCE_DIR}/neural_network/
 )
 
 install(TARGETS appzadnji
