@@ -68,17 +68,17 @@ void NetworkBuilder::setLayerNeurons(int layer, int num_neurons)
 }
 
 
-void NetworkBuilder::setFunctions(std::vector<int> functions)
+void NetworkBuilder::setFunctions(std::vector<std::string> functions)
 {
     emit functionsChanged(functions);
 }
 
-void NetworkBuilder::setLayerFunction(int layer, int num)
+void NetworkBuilder::setLayerFunction(int layer, std::string function)
 {
-    if(m_functions.at(layer) == num)
+    if(m_functions.at(layer) == function)
         return;
 
-    m_functions.at(layer) = num;
+    m_functions.at(layer) = function;
 //    for (int var = 0; var < m_functions.size(); ++var) {
 //        qDebug() << "Layer function " << var+1 << ": " << m_functions.at(var);
 //    }
@@ -89,7 +89,7 @@ void NetworkBuilder::setLayerFunction(int layer, int num)
 void NetworkBuilder::handleButtonClick()
 {
     emit startTraining();
-    network->toString();
+//    network->toString();
     network->train(traindata, learn_rate, epochs, n_outputs);
     QString s = QString::fromStdString(network->output);
     setOutputText(s);
@@ -97,6 +97,7 @@ void NetworkBuilder::handleButtonClick()
 }
 
 void NetworkBuilder::setOutputText(QString s){
+    m_outputText = s;
     emit textChanged(s);
 }
 

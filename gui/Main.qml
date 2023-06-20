@@ -8,7 +8,6 @@ import QtQml.Models
 
 import QuickQanava          2.0 as Qan
 import "qrc:/QuickQanava"   as Qan
-import NetworkBuilder
 
 Window {
     id: window
@@ -122,19 +121,19 @@ Window {
                             RadioButton {
                                 text: "sigmoid"
                                 checked: true
-                                onClicked: _menu.setLayerFunction(index, 1);
+                                onClicked: _menu.setLayerFunction(index, text);
                             }
 
                             RadioButton {
                                 text: "relu"
                                 topPadding: 2
-                                onClicked: _menu.setLayerFunction(index, 2);
+                                onClicked: _menu.setLayerFunction(index, text);
                             }
 
                             RadioButton {
                                 text: "tanh"
                                 topPadding: 2
-                                onClicked: _menu.setLayerFunction(index, 3);
+                                onClicked: _menu.setLayerFunction(index, text);
                             }
                         }
                     }
@@ -183,23 +182,32 @@ Window {
             }
 
 
+
             Pane {
                 id: networkOutput
                 objectName: "networkOutput"
-                width: 0.4 * parent.width
-                height: 0.5 * parent.height
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
+                width: 0.4 * network.width
+                height: 0.5 * network.height
+                anchors.right: network.right
+                anchors.bottom: network.bottom
                 visible: false
                 Material.elevation: 100
                 opacity: 0.8
-                Text {
-                    id: networkOutputText
-                    objectName: "networkOutputText"
-                    text: _menu.outputText
-                    font.pixelSize: 14
-                    leftPadding: 5
-                    topPadding: 3
+
+                ScrollView{
+                    id: scrollOutput
+                    anchors.fill: parent
+                    Text {
+                        id: networkOutputText
+                        objectName: "networkOutputText"
+                        font.pixelSize: 14
+                        leftPadding: 5
+                        topPadding: 3
+                    }
+                }
+
+                Component.onCompleted: {
+                    networkOutputText.text = _menu.outputText
                 }
             }
 

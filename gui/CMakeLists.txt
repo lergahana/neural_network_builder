@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2)
-
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Quick QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -17,7 +16,6 @@ qt_add_qml_module(appzadnji
         Main.qml
         CustomNodeHana.qml
         CustomEdgeHana.qml
-        OutputPane.qml
     SOURCES
         network_builder.cpp
         network_builder.h
@@ -37,7 +35,7 @@ set_target_properties(appzadnji PROPERTIES
 
 
 target_link_libraries(appzadnji
-    PRIVATE Qt6::QuickControls2 Qt6::Quick neural_network
+    PRIVATE Qt6::QuickControls2 Qt6::Quick Qt6::Core
     PUBLIC QuickQanava neural_network
 )
 

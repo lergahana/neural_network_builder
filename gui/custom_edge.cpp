@@ -4,7 +4,7 @@ QQmlComponent*  CustomEdge::delegate(QQmlEngine& engine, QObject* parent) noexce
 {
     static std::unique_ptr<QQmlComponent>   customNetworkEdge_delegate;
     if (!customNetworkEdge_delegate)
-        customNetworkEdge_delegate = std::make_unique<QQmlComponent>(&engine, "../../zadnji/gui/CustomEdge.qml",
+        customNetworkEdge_delegate = std::make_unique<QQmlComponent>(&engine, "qrc:/CustomEdgeHana.qml",
                                                                      QQmlComponent::PreferSynchronous, parent);
     return customNetworkEdge_delegate.get();
 }

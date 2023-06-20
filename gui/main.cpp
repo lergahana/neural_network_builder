@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
         &app, []() { QCoreApplication::exit(-1); },
     Qt::QueuedConnection);
 
-    qmlRegisterType<NetworkBuilder>("NetworkBuilder", 1, 1, "NetworkBuilder");
 
     QQuickStyle::setStyle("Material");
 
@@ -62,7 +61,7 @@ int main(int argc, char *argv[])
 
 
 
-    NetworkBuilder network_builder = NetworkBuilder(2, 2);
+    NetworkBuilder network_builder = NetworkBuilder(n_inputs, n_outputs);
     //context->setContextProperty("_menu", &network_builder);
     network_builder.traindata = traindata;
     network_builder.epochs = epochs;
@@ -79,6 +78,7 @@ int main(int argc, char *argv[])
     QObject* rootObject = engine.rootObjects().value(0);
     QObject* trainButton = rootObject->findChild<QObject*>("startTraining");
     QObject* outputPane = rootObject->findChild<QObject*>("networkOutput");
+    QObject* outputPaneText = outputPane->findChild<QObject*>("networkOutputText");
 
 //    if (outputPane) {
 //        QObject::connect(&network_builder, &NetworkBuilder::endTraining, outputPane, [outputPane]() {
@@ -86,6 +86,13 @@ int main(int argc, char *argv[])
 //        });
 //        qDebug() << outputPane->children()[0]->property("text").toString();
 //    }
+
+
+    QObject::connect(&network_builder, &NetworkBuilder::endTraining, outputPaneText, [&]() {
+        bool changed = outputPaneText->setProperty("text", network_builder.outputText());
+        network_builder.network->toString();
+    });
+
 
 
 
