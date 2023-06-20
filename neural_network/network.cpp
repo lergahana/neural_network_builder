@@ -33,6 +33,23 @@ void Network::add_layer(Layer l) {
     m_layers.push_back(l);
 }
 
+void Network::insert_hidden_layer(LayerInfo l){
+    Layer output = m_layers.back();
+    int count = 0;
+    for (auto &layer: m_layers)
+    {
+        // Insert the hidden layer before the output layer
+        if (count == m_nLayers - 1)
+        {
+            m_layers[count] = Layer(l.n_neurons, m_layers[count-1].get_neurons().size()+1, l.act_function);
+        }
+        count += 1;
+    }
+    // Fix the output layer
+    m_layers.push_back(Layer(output.get_neurons().size(), m_layers[count-1].get_neurons().size()+1, output.get_act_function()));
+    setNLayers();
+}
+
 
 std::vector<double> Network::forward_propagate(std::vector<double> inputs) {
     std::vector<double> new_inputs;
@@ -133,6 +150,7 @@ void Network::train(std::vector<std::vector<double>> training_data, double l_rat
             update_weights(row, l_rate);
         }
         std::cout << "[>] epoch=" << (e+1) << ", l_rate=" << l_rate << ", error=" << sum_error << std::endl;
+        output += "[>] epoch=" + std::to_string(e+1) + ", l_rate=" + std::to_string(l_rate) + ", error=" + std::to_string(sum_error) + "\n";
     }
 }
 

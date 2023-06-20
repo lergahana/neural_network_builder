@@ -12,13 +12,14 @@ class Layer {
 
 private:
     std::vector<Neuron> m_neurons;
+    ActivationFunction* act_function;
 
 public:
     Layer(int n_neurons, int n_weights, ActivationFunction* act_function);
     ~Layer()=default;
 
     std::vector<Neuron>& get_neurons() { return m_neurons; };
-
+    ActivationFunction* get_act_function() { return act_function; };
 };
 
 struct LayerInfo{

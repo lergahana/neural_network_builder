@@ -59,13 +59,15 @@ int main(int argc, char* argv[]) {
     hidden.n_neurons = 5;
     hidden.act_function = act_function;
 
+    std::cout << "Outputs: " << n_outputs << ", inputs: " << n_inputs << std::endl;
+
 
     // initialize a network
     std::vector<LayerInfo> layers;
     layers.push_back(hidden);
 
     network->initialize_network(n_inputs, layers, n_outputs);
-    network->toString();
+
 
     // train the network (forward propagation, backward propagation and weight updating)
     network->train(traindata, learn_rate, epochs, n_outputs);

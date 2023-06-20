@@ -8,6 +8,7 @@ import QtQml.Models
 
 import QuickQanava          2.0 as Qan
 import "qrc:/QuickQanava"   as Qan
+import NetworkBuilder
 
 Window {
     id: window
@@ -19,7 +20,7 @@ Window {
     Material.theme: Material.Light
     Material.accent: Material.color(Material.Purple)
 
-    required property MenuObject _menu
+    required property NetworkBuilder _menu
     property var nodes: []
     //property int MAXNODES: 10
 
@@ -71,7 +72,7 @@ Window {
                             }
                             neuronsRepeater.model = value;
                             actfuncRepeater.model = value;
-                            drawNN();
+                            _menu.drawNN(graph, graphView, network, defaultEdgeStyle);
                         }
                     }
 
@@ -101,7 +102,7 @@ Window {
                                 value: _menu.neurons[index]
                                 onValueChanged: {
                                     _menu.setLayerNeurons(index, value);
-                                    drawNN();
+                                    _menu.drawNN(graph, graphView, network, defaultEdgeStyle);
                                 }
                             }
                         }
@@ -145,7 +146,9 @@ Window {
                             menu.visible = false
                             network.width = window.width
                             networkOutput.visible = true
+                            _menu.handleButtonClick()
                         }
+
 
                     }
 
@@ -173,10 +176,8 @@ Window {
                     anchors.fill: parent
 
                     Component.onCompleted: {
-                        drawNN()
-                        defaultEdgeStyle.lineWidth = 1.5
-                        defaultEdgeStyle.lineType = Qan.EdgeStyle.Straight
-
+                        _menu.drawNN(graph, graphView, network, defaultEdgeStyle);
+                        defaultEdgeStyle.lineWidth = 1.5;
                     }
                 }
             }
@@ -193,8 +194,9 @@ Window {
                 Material.elevation: 100
                 opacity: 0.8
                 Text {
+                    id: networkOutputText
                     objectName: "networkOutputText"
-                    text: qsTr("Network output: ")
+                    text: _menu.outputText
                     font.pixelSize: 14
                     leftPadding: 5
                     topPadding: 3
@@ -223,52 +225,6 @@ Window {
         }
     }
 
-
-    function drawNN(){
-        graph.clearGraph();
-        nodes = [];
-
-        var numRows = _menu.layers;
-        var circleSize = 40;
-        var spacing = 80;
-
-        var nodeItem = Qt.createComponent("CustomNode.qml");
-
-        // Create nodes
-        for(var i = 0; i < numRows; i++){
-            nodes.push([]);
-
-            var numCircles = _menu.neurons[i];
-            var rowWidth = numCircles * circleSize + (numCircles - 1) * spacing;
-            var startX = (network.width - rowWidth) / 2 - network.width/2;
-
-
-            for (var j = 0; j < _menu.neurons[i]; j++){
-                var node = graph.insertNode(nodeItem);
-                var circleX = startX + j * (circleSize + spacing);
-                var circleY = i * (circleSize + spacing);
-
-                node.item.x = circleX;
-                node.item.y = circleY;
-
-                nodes[i].push(node);
-            }
-
-        }
-
-
-        // Add lines connecting nodes
-        for(i = 0; i < numRows-1; i++){
-            for (j = 0; j < _menu.neurons[i]; j++){
-                for (var z = 0; z < _menu.neurons[i+1]; z++){
-                   graph.insertEdge(nodes[i][j], nodes[i+1][z]);
-                }
-            }
-        }
-
-        graphView.fitContentInView(network.width - 70, network.height - 70);
-    }
-
-    onWindowStateChanged: drawNN()
+    onWindowStateChanged: _menu.drawNN(graph, graphView, network, defaultEdgeStyle)
 
 }
