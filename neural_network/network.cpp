@@ -1,5 +1,8 @@
 #include "network.h"
+#include <iomanip>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <cstdlib>
 #include <cmath>
 #include <ctime>
@@ -33,23 +36,41 @@ void Network::add_layer(Layer l) {
     m_layers.push_back(l);
 }
 
+void Network::set_layer(int i, Layer l){
+    m_layers[i] = l;
+}
+
+Layer* Network::get_layer(int index){
+    return &m_layers[index];
+}
+
 void Network::insert_hidden_layer(LayerInfo l){
     Layer output = m_layers.back();
-    int count = 0;
-    for (auto &layer: m_layers)
-    {
-        // Insert the hidden layer before the output layer
-        if (count == m_nLayers - 1)
-        {
-            m_layers[count] = Layer(l.n_neurons, m_layers[count-1].get_neurons().size()+1, l.act_function);
-        }
-        count += 1;
-    }
-    // Fix the output layer
-    m_layers.push_back(Layer(output.get_neurons().size(), m_layers[count-1].get_neurons().size()+1, output.get_act_function()));
+    // Remove output layer
+    m_layers.pop_back();
+    // Add hidden layer
+    m_layers.push_back(Layer(l.n_neurons, m_layers.back().get_neurons().size()+1, l.act_function));
+    // Add output layer
+    m_layers.push_back(Layer(output.get_neurons().size(), m_layers.back().get_neurons().size()+1, output.get_act_function()));
     setNLayers();
 }
 
+void Network::remove_hidden_layers(int num){
+    std::vector<Layer> new_layers;
+    Layer output = m_layers.back();
+    int last_hidden_layer = m_layers.size() - num - 1;
+
+    for (int i = 0; i < last_hidden_layer; i++){
+        new_layers.push_back(m_layers[i]);
+    }
+
+    new_layers.push_back(Layer(output.get_neurons().size(), m_layers[last_hidden_layer].get_neurons().size()+1, output.get_act_function()));
+
+    m_layers.clear();
+    m_layers = new_layers;
+    new_layers.clear();
+    setNLayers();
+}
 
 std::vector<double> Network::forward_propagate(std::vector<double> inputs) {
     std::vector<double> new_inputs;
@@ -149,8 +170,14 @@ void Network::train(std::vector<std::vector<double>> training_data, double l_rat
             backward_propagate_error(expected);
             update_weights(row, l_rate);
         }
-        std::cout << "[>] epoch=" << (e+1) << ", l_rate=" << l_rate << ", error=" << sum_error << std::endl;
-        output += "[>] epoch=" + std::to_string(e+1) + ", l_rate=" + std::to_string(l_rate) + ", error=" + std::to_string(sum_error) + "\n";
+        sum_error = std::round(sum_error * 10000) / 10000.0;
+        std::ostringstream stream;
+        stream << std::fixed << std::setprecision(4) << "[>] Epoch " << (e+1) << ": error = " << sum_error << std::endl;
+        output += stream.str();
+
+        // Uncomment to print to std output
+        // std::cout << "[>] Epoch " << (e+1) << ": error = " << sum_error << std::endl;
+
     }
 }
 
@@ -167,7 +194,8 @@ void Network::toString(){
     for (int i = 0; i < get_layers().size(); i++){
         std::string line(100, '-');
         std::cout << line << std::endl;
-        std::cout << "Number of neurons in layer: " << i+1 << ": " << get_layers()[i].get_neurons().size() << std::endl;
+        std::cout << "Number of neurons in layer: " << i+1 << ": " << get_num_neurons(i) << std::endl;
+        std::cout << "Activation function in layer: " << i+1 << ": " << get_layers()[i].get_act_function()->get_name() << std::endl;
         for (int j = 0; j < get_layers()[i].get_neurons().size(); j++)
         {
             std::cout << "Neuron " << (j+1) << "\n   weights: ";

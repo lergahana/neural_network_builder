@@ -64,8 +64,8 @@ int main(int argc, char *argv[])
     NetworkBuilder network_builder = NetworkBuilder(n_inputs, n_outputs);
     //context->setContextProperty("_menu", &network_builder);
     network_builder.traindata = traindata;
-    network_builder.epochs = epochs;
-    network_builder.learn_rate = learn_rate;
+    network_builder.setEpochs(epochs);
+    network_builder.setLearnRate(learn_rate);
     network_builder.n_outputs = n_outputs;
 
     engine.setInitialProperties({
@@ -90,7 +90,6 @@ int main(int argc, char *argv[])
 
     QObject::connect(&network_builder, &NetworkBuilder::endTraining, outputPaneText, [&]() {
         bool changed = outputPaneText->setProperty("text", network_builder.outputText());
-        network_builder.network->toString();
     });
 
 

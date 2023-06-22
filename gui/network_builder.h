@@ -16,46 +16,49 @@ class NetworkBuilder : public QObject
     QML_ELEMENT
 
     Q_PROPERTY(int layers READ layers WRITE setLayers NOTIFY layersChanged)
-    Q_PROPERTY(std::vector<int> neurons READ neurons WRITE setNeurons NOTIFY neuronsChanged)
-    Q_PROPERTY(std::vector<std::string> functions READ functions WRITE setFunctions NOTIFY functionsChanged)
-    Q_PROPERTY(Network* network NOTIFY networkBuilt)
     Q_PROPERTY(QString outputText READ outputText WRITE setOutputText NOTIFY textChanged)
+    Q_PROPERTY(double learn_rate READ learn_rate WRITE setLearnRate NOTIFY learnRateChanged)
+    Q_PROPERTY(int epochs READ epochs WRITE setEpochs NOTIFY epochsChanged)
 
 private:
     int m_layers = 1;
-    std::vector<int> m_neurons;
-    std::vector<std::string> m_functions;
     QString m_outputText = "Training starting...";
+    double m_learn_rate;
+    int m_epochs;
 
 public:
     NetworkBuilder(int inputs, int outputs);
     ~NetworkBuilder() = default;
 
     int layers() const { return m_layers; };
-    std::vector<int> neurons()  const { return m_neurons; };
-    std::vector<std::string> functions()  const { return m_functions; };
     QString outputText() const { return m_outputText; };
+    double learn_rate() const { return m_learn_rate; };
+    int epochs() const { return m_epochs; };
+
     Network* network;
     std::vector<std::vector<double>> traindata;
-    double learn_rate;
-    int epochs;
     int n_outputs;
+    int n_inputs;
+
+    Q_INVOKABLE int get_num_neurons(int index) { return network->get_num_neurons(index); };
+    Q_INVOKABLE void setLayerFunction(int l, QString n);
+    Q_INVOKABLE void setLayerNeurons(int l, int n);
 
 
 public slots:
     void setLayers(int n);
-    void setNeurons(std::vector<int>);
-    void setFunctions(std::vector<std::string>);
-    void setLayerNeurons(int l, int n);
-    void setLayerFunction(int l, std::string n);
-    void handleButtonClick();
+    void setLearnRate(double lr);
+    void setEpochs(int e);
     void setOutputText(QString);
+    void handleButtonClick();
     void drawNN(qan::Graph *graph, qan::GraphView *graphView, QQuickItem* network, qan::EdgeStyle* edgeStyle);
 
 signals:
     void layersChanged(int);
-    void neuronsChanged(std::vector<int>);
-    void functionsChanged(std::vector<std::string>);
+    void neuronsChanged(int);
+    void functionChanged(std::string);
+    void learnRateChanged(double);
+    void epochsChanged(int);
     void networkBuilt();
     void textChanged(QString);
     void startTraining();

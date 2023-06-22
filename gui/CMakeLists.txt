@@ -14,15 +14,12 @@ qt_add_qml_module(appzadnji
     VERSION 1.0
     QML_FILES
         Main.qml
-        CustomNodeHana.qml
-        CustomEdgeHana.qml
+        CustomRoundNode.qml
     SOURCES
         network_builder.cpp
         network_builder.h
         custom_node.h
         custom_node.cpp
-        custom_edge.h
-        custom_edge.cpp
 )
 
 set_target_properties(appzadnji PROPERTIES

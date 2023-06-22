@@ -10,11 +10,12 @@ Qan.NodeItem {
     minimumSize: Qt.size(30,30)
 
     Rectangle {
+        id: rectangle
         anchors.fill: parent
-        radius: width / 2;
-        border.width: 1;
+        radius: width / 2
+        border.width: 1
         border.color: "black"
-        color: Material.accent;
+        color: Material.accent
     }
 
 }

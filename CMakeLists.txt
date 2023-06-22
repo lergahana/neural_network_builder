@@ -8,7 +8,5 @@ set(CMAKE_AUTORCC ON)
 
 add_subdirectory(neural_network)
 add_subdirectory(test_neural_network)
-add_subdirectory(nn_moj)
-add_subdirectory(test_nn)
 add_subdirectory(gui)
 add_subdirectory(QuickQanava)

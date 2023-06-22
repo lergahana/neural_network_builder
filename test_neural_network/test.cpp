@@ -54,10 +54,8 @@ int main(int argc, char* argv[]) {
 
     Network* network = new Network();
 
-    ActivationFunction* act_function = new Sigmoid();
     LayerInfo hidden;
     hidden.n_neurons = 5;
-    hidden.act_function = act_function;
 
     std::cout << "Outputs: " << n_outputs << ", inputs: " << n_inputs << std::endl;
 

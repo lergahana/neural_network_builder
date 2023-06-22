@@ -63,12 +63,6 @@ Window {
                         value: 1
                         onValueChanged: {
                             _menu.setLayers(value);
-                            for (var i = 0; i < value; i++){
-                                if(_menu.neurons[i] === 0){
-                                   _menu.setLayerNeurons(i, 1);
-                                   _menu.setLayerFunction(i, 1);
-                                }
-                            }
                             neuronsRepeater.model = value;
                             actfuncRepeater.model = value;
                             _menu.drawNN(graph, graphView, network, defaultEdgeStyle);
@@ -98,7 +92,7 @@ Window {
                                 to: 10
                                 stepSize: 1
 
-                                value: _menu.neurons[index]
+                                value: _menu.get_num_neurons(index);
                                 onValueChanged: {
                                     _menu.setLayerNeurons(index, value);
                                     _menu.drawNN(graph, graphView, network, defaultEdgeStyle);
@@ -145,6 +139,8 @@ Window {
                             menu.visible = false
                             network.width = window.width
                             networkOutput.visible = true
+                            hyperparameters.visible = false;
+
                             _menu.handleButtonClick()
                         }
 
@@ -162,10 +158,82 @@ Window {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
 
+            Item {
+                z: 2
+                id: hyperparameters
+
+                ColumnLayout {
+                    spacing: 3
+
+                    Text {
+                        text: "Learning rate: "
+                        leftPadding: 10
+                        font.pixelSize: 12
+                    }
+
+                    RowLayout {
+                        spacing: 10
+
+                        Slider {
+                            id: learningRate
+                            from: 0.1
+                            value: 0.40
+                            to: 1
+                            stepSize: 0.1
+                            snapMode: Slider.SnapAlways
+
+                            onValueChanged: {
+                                learningRateLabel.text = String(learningRate.value.toFixed(2));
+                                _menu.learn_rate = value;
+                            }
+                        }
+
+                        Text {
+                            id: learningRateLabel
+                            text: String(learningRate.value.toFixed(2))
+                            font.pixelSize: 12
+                            bottomPadding: 3
+                        }
+                    }
+
+                    Text {
+                        text: "Number of epochs: "
+                        leftPadding: 10
+                        font.pixelSize: 12
+                    }
+
+                    RowLayout {
+                        spacing: 10
+
+                        Slider {
+                            id: epochs
+                            from: 10
+                            value: 50
+                            to: 100
+                            stepSize: 10
+                            snapMode: Slider.SnapAlways
+
+                            onValueChanged: {
+                                epochsLabel.text = String(epochs.value);
+                                _menu.epochs = value;
+                            }
+                        }
+
+                        Text {
+                            id: epochsLabel
+                            text: String(epochs.value)
+                            font.pixelSize: 12
+                            bottomPadding: 3
+                        }
+                    }
+                }
+            }
+
 
             Qan.GraphView {
+                z: 1
                 id: graphView
-                anchors.fill: parent
+                anchors.fill: network
                 navigable: true
                 grid: Qan.AbstractLineGrid
 
@@ -184,10 +252,11 @@ Window {
 
 
             Pane {
+                z: 2
                 id: networkOutput
                 objectName: "networkOutput"
-                width: 0.4 * network.width
-                height: 0.5 * network.height
+                width: 0.25 * network.width
+                height: network.height
                 anchors.right: network.right
                 anchors.bottom: network.bottom
                 visible: false

@@ -10,3 +10,8 @@ Layer::Layer(int n_neurons, int n_weights, ActivationFunction* act_function) : a
     });
 
 }
+
+void Layer::set_act_function(ActivationFunction* a)
+{
+    act_function = a;
+}
