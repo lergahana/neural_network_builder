@@ -12,15 +12,6 @@
 #include "activation_function.h"
 
 
-double accuracy_metric(std::vector<int> expect, std::vector<int> predict) {
-    int correct = 0;
-
-    for (int i = 0; i < predict.size(); i++){
-        if (predict[i] == expect[i]) correct++;
-    }
-    return static_cast<double>(correct * 100.0f / predict.size());
-}
-
 int main(int argc, char* argv[]) {
     std::cout << "NN with Backpropagation in C++" << std::endl;
 
@@ -55,7 +46,7 @@ int main(int argc, char* argv[]) {
     Network* network = new Network();
 
     LayerInfo hidden;
-    hidden.n_neurons = 5;
+    hidden.numNeurons = 5;
 
     std::cout << "Outputs: " << n_outputs << ", inputs: " << n_inputs << std::endl;
 
@@ -64,11 +55,11 @@ int main(int argc, char* argv[]) {
     std::vector<LayerInfo> layers;
     layers.push_back(hidden);
 
-    network->initialize_network(n_inputs, layers, n_outputs);
+    network->initializeNetwork(n_inputs, layers, n_outputs);
 
 
     // train the network (forward propagation, backward propagation and weight updating)
-    network->train(traindata, learn_rate, epochs, n_outputs);
+    network->train(&traindata, learn_rate, epochs, n_outputs);
 
     // make a prediction on the test data
     std::cout << "[Prediction]" << std::endl;
@@ -86,7 +77,7 @@ int main(int argc, char* argv[]) {
 
 
     // accuracy metric
-    std::cout << "Accuracy: " << accuracy_metric(expected, predictions) << "%" << std::endl;
+    std::cout << "Accuracy: " << network->accuracy_metric(expected, predictions) << "%" << std::endl;
 
     return 0;
 }

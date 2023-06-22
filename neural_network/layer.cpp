@@ -1,17 +1,15 @@
 #include "layer.h"
 
-
-Layer::Layer(int n_neurons, int n_weights, ActivationFunction* act_function) : act_function(act_function)
+Layer::Layer(int numNeurons, int numWeights, ActivationFunction* actFunction) : actFunction(actFunction)
 {
-    m_neurons.clear();
-    m_neurons.reserve(n_neurons);
-    std::generate_n(std::back_inserter(m_neurons), n_neurons, [n_weights, act_function]() {
-        return Neuron(n_weights, act_function);
+    neurons.clear();
+    neurons.reserve(numNeurons);
+    std::generate_n(std::back_inserter(neurons), numNeurons, [numWeights, actFunction]() {
+        return Neuron(numWeights, actFunction);
     });
-
 }
 
-void Layer::set_act_function(ActivationFunction* a)
+void Layer::setActivationFunction(ActivationFunction* activationFunction)
 {
-    act_function = a;
+    actFunction = activationFunction;
 }

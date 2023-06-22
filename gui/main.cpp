@@ -12,6 +12,7 @@
 #include <set>
 
 
+
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -30,46 +31,38 @@ int main(int argc, char *argv[])
     //context->setContextProperty("_node", &node);
 
 
-
-    std::vector<std::vector<double>> traindata {
-        {2.7810836,		2.550537003,	0},
-        {1.465489372,	2.362125076,	0},
-        {3.396561688,	4.400293529,	0},
-        {6.922596716,	1.77106367,		1},
-        {8.675418651,	-0.242068655,	1},
-        {7.673756466,	3.508563011,	1}
-    };
-
-    std::vector<std::vector<double>> testdata {
+    std::vector<std::vector<double>> data {
+        {2.7810836,     2.550537003,    0},
+        {1.465489372,   2.362125076,    0},
+        {3.396561688,   4.400293529,    0},
+        {6.922596716,   1.77106367,     1},
+        {8.675418651,   -0.242068655,   1},
+        {7.673756466,   3.508563011,    1},
         {1.38807019,	1.850220317,	0},
         {3.06407232,	3.005305973,	0},
         {7.627531214,	2.759262235,	1},
         {5.332441248,	2.088626775,	1},
     };
 
+
     // binary classification
-    std::set<double> results;
-    for (const auto& r : traindata) {
-        results.insert(r.back());
+    std::set<float> results;
+    for (const auto& r : data) {
+        results.insert(r[r.size() - 1]);
     }
     int n_outputs = results.size();
-    int n_inputs = traindata[0].size() - 1;
+    int n_inputs = data[0].size() - 1;
 
     // we can experiment with these values
-    double learn_rate = 0.4;
+    double learnRate = 0.4;
     int epochs = 50;
 
 
 
-    NetworkBuilder network_builder = NetworkBuilder(n_inputs, n_outputs);
-    //context->setContextProperty("_menu", &network_builder);
-    network_builder.traindata = traindata;
-    network_builder.setEpochs(epochs);
-    network_builder.setLearnRate(learn_rate);
-    network_builder.n_outputs = n_outputs;
+    NetworkBuilder* network_builder = new NetworkBuilder(&data, n_inputs, n_outputs, epochs, learnRate);
 
     engine.setInitialProperties({
-        { "_menu", QVariant::fromValue(&network_builder) }
+        { "_menu", QVariant::fromValue(network_builder) }
 
     });
 
@@ -79,26 +72,17 @@ int main(int argc, char *argv[])
     QObject* trainButton = rootObject->findChild<QObject*>("startTraining");
     QObject* outputPane = rootObject->findChild<QObject*>("networkOutput");
     QObject* outputPaneText = outputPane->findChild<QObject*>("networkOutputText");
-
-//    if (outputPane) {
-//        QObject::connect(&network_builder, &NetworkBuilder::endTraining, outputPane, [outputPane]() {
-//            outputPane->children()[0]->setProperty("text", "nesto se zekim");
-//        });
-//        qDebug() << outputPane->children()[0]->property("text").toString();
-//    }
+    QObject* testPane = rootObject->findChild<QObject*>("testOutput");
+    QObject* testText = testPane->findChild<QObject*>("testText");
 
 
-    QObject::connect(&network_builder, &NetworkBuilder::endTraining, outputPaneText, [&]() {
-        bool changed = outputPaneText->setProperty("text", network_builder.outputText());
+    QObject::connect(network_builder, &NetworkBuilder::endTraining, outputPaneText, [&]() {
+        bool changed = outputPaneText->setProperty("text", network_builder->outputText());
     });
 
-
-
-
-//    network_builder.setOutputText("iz mejna");
-//    QString s = "nesto";
-//    outputPane->children()[0]->setProperty("text", s);
-//    qDebug() << outputPane->children()[0]->property("text").toString();
+    QObject::connect(network_builder, &NetworkBuilder::endTest, testText, [&]() {
+        bool changed = testPane->setProperty("text", network_builder->testText());
+    });
 
     return app.exec();
 }

@@ -7,27 +7,25 @@
 #include "neuron.h"
 #include "activation_function.h"
 
-
 class Layer {
-
 private:
-    std::vector<Neuron> m_neurons;
-    ActivationFunction* act_function;
+    std::vector<Neuron> neurons;
+    ActivationFunction* actFunction;
 
 public:
-    Layer(int n_neurons, int n_weights, ActivationFunction* act_function = new Sigmoid());
-    ~Layer()=default;
+    Layer(int numNeurons, int numWeights, ActivationFunction* actFunction = new Sigmoid());
+    ~Layer() = default;
 
-    std::vector<Neuron>& get_neurons() { return m_neurons; };
-    ActivationFunction* get_act_function() { return act_function; };
-    void set_act_function(ActivationFunction* a);
+    std::vector<Neuron>& getNeurons() { return neurons; };
+    ActivationFunction* getActivationFunction() { return actFunction; };
+    void setActivationFunction(ActivationFunction* activationFunction);
 
-    int get_num_neurons() { return m_neurons.size(); };
+    int getNumNeurons() { return neurons.size(); };
 };
 
-struct LayerInfo{
-    int n_neurons = 1;
-    ActivationFunction* act_function = new Sigmoid();
+struct LayerInfo {
+    int numNeurons = 1;
+    ActivationFunction* activationFunction = new Sigmoid();
 };
 
 #endif // LAYER_H

@@ -15,54 +15,70 @@ class NetworkBuilder : public QObject
     Q_OBJECT
     QML_ELEMENT
 
-    Q_PROPERTY(int layers READ layers WRITE setLayers NOTIFY layersChanged)
-    Q_PROPERTY(QString outputText READ outputText WRITE setOutputText NOTIFY textChanged)
-    Q_PROPERTY(double learn_rate READ learn_rate WRITE setLearnRate NOTIFY learnRateChanged)
-    Q_PROPERTY(int epochs READ epochs WRITE setEpochs NOTIFY epochsChanged)
+    Q_PROPERTY(int numLayers READ numLayers WRITE setNumLayers NOTIFY numLayersChanged)
+    Q_PROPERTY(QString outputText READ outputText WRITE setOutputText NOTIFY outputTextChanged)
+    Q_PROPERTY(QString testText READ testText WRITE setTestText NOTIFY testTextChanged)
+    Q_PROPERTY(double learningRate READ learningRate WRITE setLearningRate NOTIFY learningRateChanged)
+    Q_PROPERTY(int numEpochs READ numEpochs WRITE setNumEpochs NOTIFY numEpochsChanged)
 
 private:
-    int m_layers = 1;
-    QString m_outputText = "Training starting...";
-    double m_learn_rate;
-    int m_epochs;
+    int m_numLayers = 1;
+    QString m_outputText = "";
+    QString m_testText = "";
+    double m_learningRate;
+    int m_numEpochs;
+    Network* m_network;
+    std::vector<std::vector<double>>* m_data;
+    std::vector<std::vector<double>>* m_trainData;
+    std::vector<std::vector<double>>* m_testData;
+    int m_numOutputs;
+    int m_numInputs;
 
 public:
-    NetworkBuilder(int inputs, int outputs);
+    NetworkBuilder(std::vector<std::vector<double>>* data, int inputs, int outputs, int epochs, double learnRate);
     ~NetworkBuilder() = default;
 
-    int layers() const { return m_layers; };
+    int numLayers() const { return m_numLayers; };
     QString outputText() const { return m_outputText; };
-    double learn_rate() const { return m_learn_rate; };
-    int epochs() const { return m_epochs; };
+    QString testText() const { return m_testText; };
+    double learningRate() const { return m_learningRate; };
+    int numEpochs() const { return m_numEpochs; };
 
-    Network* network;
-    std::vector<std::vector<double>> traindata;
-    int n_outputs;
-    int n_inputs;
+    void setTestTrainData(std::vector<std::vector<double>>* data);
+    void setNumOutputs(int num) { m_numOutputs = num; };
+    void setNumInputs(int num) { m_numInputs = num; };
 
-    Q_INVOKABLE int get_num_neurons(int index) { return network->get_num_neurons(index); };
-    Q_INVOKABLE void setLayerFunction(int l, QString n);
-    Q_INVOKABLE void setLayerNeurons(int l, int n);
+    int numOutputs() { return m_numOutputs; };
+    int numInputs() { return m_numInputs; };
+    Network* network() { return m_network; };
+
+    Q_INVOKABLE int getNumNeurons(int index) { return m_network->getNumNeurons(index); };
+    Q_INVOKABLE void setLayerFunction(int layer, QString name);
+    Q_INVOKABLE void setLayerNeurons(int layer, int numNeurons);
 
 
 public slots:
-    void setLayers(int n);
-    void setLearnRate(double lr);
-    void setEpochs(int e);
+    void setNumLayers(int numLayers);
+    void setLearningRate(double learningRate);
+    void setNumEpochs(int numEpochs);
     void setOutputText(QString);
-    void handleButtonClick();
-    void drawNN(qan::Graph *graph, qan::GraphView *graphView, QQuickItem* network, qan::EdgeStyle* edgeStyle);
+    void setTestText(QString);
+    void handleTrainButtonClick();
+    void handleTestButtonClick();
+    void drawNeuralNetwork(qan::Graph *graph, qan::GraphView *graphView, QQuickItem* network, qan::EdgeStyle* edgeStyle);
 
 signals:
-    void layersChanged(int);
-    void neuronsChanged(int);
+    void numLayersChanged(int);
+    void numNeuronsChanged(int);
     void functionChanged(std::string);
-    void learnRateChanged(double);
-    void epochsChanged(int);
+    void learningRateChanged(double);
+    void numEpochsChanged(int);
     void networkBuilt();
-    void textChanged(QString);
+    void outputTextChanged(QString);
+    void testTextChanged(QString);
     void startTraining();
     void endTraining();
+    void endTest();
 
 };
 

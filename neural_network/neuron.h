@@ -9,15 +9,15 @@
 class Neuron {
 
 private:
-    int m_nWeights = 0;
+    int m_numWeights = 0;
     std::vector<double> m_weights;
     double m_activation = 0.0;
     double m_output = 0.0;
     double m_delta = 0.0;
-    ActivationFunction* act_function;
+    ActivationFunction* activationFunction;
 
 public:
-    Neuron(int nWeights, ActivationFunction* act_function);
+    Neuron(int numWeights, ActivationFunction* activationFunction);
     ~Neuron() = default;
 
     void activate(std::vector<double> inputs);

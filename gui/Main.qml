@@ -31,8 +31,9 @@ Window {
             id: menu
             width: 0.3*parent.width
             height: parent.height
-            anchors.top: window.top
             color: "#E8E9EB"
+            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignTop
 
             ScrollView{
                 anchors.fill: parent
@@ -62,10 +63,10 @@ Window {
 
                         value: 1
                         onValueChanged: {
-                            _menu.setLayers(value);
-                            neuronsRepeater.model = value;
-                            actfuncRepeater.model = value;
-                            _menu.drawNN(graph, graphView, network, defaultEdgeStyle);
+                            _menu.setNumLayers(value)
+                            neuronsRepeater.model = value
+                            actfuncRepeater.model = value
+                            _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
                         }
                     }
 
@@ -92,10 +93,10 @@ Window {
                                 to: 10
                                 stepSize: 1
 
-                                value: _menu.get_num_neurons(index);
+                                value: _menu.getNumNeurons(index)
                                 onValueChanged: {
-                                    _menu.setLayerNeurons(index, value);
-                                    _menu.drawNN(graph, graphView, network, defaultEdgeStyle);
+                                    _menu.setLayerNeurons(index, value)
+                                    _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
                                 }
                             }
                         }
@@ -115,19 +116,19 @@ Window {
                             RadioButton {
                                 text: "sigmoid"
                                 checked: true
-                                onClicked: _menu.setLayerFunction(index, text);
+                                onClicked: _menu.setLayerFunction(index, text)
                             }
 
                             RadioButton {
                                 text: "relu"
                                 topPadding: 2
-                                onClicked: _menu.setLayerFunction(index, text);
+                                onClicked: _menu.setLayerFunction(index, text)
                             }
 
                             RadioButton {
                                 text: "tanh"
                                 topPadding: 2
-                                onClicked: _menu.setLayerFunction(index, text);
+                                onClicked: _menu.setLayerFunction(index, text)
                             }
                         }
                     }
@@ -139,9 +140,10 @@ Window {
                             menu.visible = false
                             network.width = window.width
                             networkOutput.visible = true
-                            hyperparameters.visible = false;
+                            hyperparameters.visible = false
+                            testButton.visible = true
 
-                            _menu.handleButtonClick()
+                            _menu.handleTrainButtonClick()
                         }
 
 
@@ -161,70 +163,89 @@ Window {
             Item {
                 z: 2
                 id: hyperparameters
+                height: 100
+                width: network.width - 20
+                Layout.alignment: Qt.AlignTop
 
-                ColumnLayout {
-                    spacing: 3
+                RowLayout {
+                    id: hyperparametersRow
+                    anchors.fill: parent
 
-                    Text {
-                        text: "Learning rate: "
-                        leftPadding: 10
-                        font.pixelSize: 12
-                    }
+                    ColumnLayout {
+                        spacing: 1
+                        Layout.alignment: Qt.AlignLeft
 
-                    RowLayout {
-                        spacing: 10
+                        Text {
+                            id: textLearningRate
+                            text: "Learning rate: "
+                            leftPadding: 10
+                            font.pixelSize: 12
+                        }
 
-                        Slider {
-                            id: learningRate
-                            from: 0.1
-                            value: 0.40
-                            to: 1
-                            stepSize: 0.1
-                            snapMode: Slider.SnapAlways
+                        RowLayout {
+                            spacing: 10
 
-                            onValueChanged: {
-                                learningRateLabel.text = String(learningRate.value.toFixed(2));
-                                _menu.learn_rate = value;
+                            Slider {
+                                id: learningRate
+                                width: 50
+                                from: 0.1
+                                value: 0.40
+                                to: 1
+                                stepSize: 0.1
+                                snapMode: Slider.SnapAlways
+
+                                onValueChanged: {
+                                    learningRateLabel.text = String(learningRate.value.toFixed(2))
+                                    _menu.setLearningRate(value)
+                                }
+                            }
+
+                            Text {
+                                id: learningRateLabel
+                                text: String(learningRate.value.toFixed(2))
+                                font.pixelSize: 12
+                                bottomPadding: 3
                             }
                         }
 
+                    }
+
+                    ColumnLayout {
+                        spacing: 1
+                        Layout.alignment: Qt.AlignRight
+
                         Text {
-                            id: learningRateLabel
-                            text: String(learningRate.value.toFixed(2))
+                            text: "Number of epochs: "
+                            leftPadding: 10
                             font.pixelSize: 12
-                            bottomPadding: 3
                         }
-                    }
 
-                    Text {
-                        text: "Number of epochs: "
-                        leftPadding: 10
-                        font.pixelSize: 12
-                    }
+                        RowLayout {
+                            spacing: 10
 
-                    RowLayout {
-                        spacing: 10
+                            Slider {
+                                id: epochs
+                                width: 50
+                                from: 10
+                                value: 50
+                                to: 100
+                                stepSize: 10
+                                snapMode: Slider.SnapAlways
 
-                        Slider {
-                            id: epochs
-                            from: 10
-                            value: 50
-                            to: 100
-                            stepSize: 10
-                            snapMode: Slider.SnapAlways
+                                onValueChanged: {
+                                    epochsLabel.text = String(epochs.value)
+                                    _menu.setNumEpochs(value)
+                                }
+                            }
 
-                            onValueChanged: {
-                                epochsLabel.text = String(epochs.value);
-                                _menu.epochs = value;
+                            Text {
+                                id: epochsLabel
+                                text: String(epochs.value)
+                                font.pixelSize: 12
+                                bottomPadding: 3
                             }
                         }
 
-                        Text {
-                            id: epochsLabel
-                            text: String(epochs.value)
-                            font.pixelSize: 12
-                            bottomPadding: 3
-                        }
                     }
                 }
             }
@@ -243,24 +264,22 @@ Window {
                     anchors.fill: parent
 
                     Component.onCompleted: {
-                        _menu.drawNN(graph, graphView, network, defaultEdgeStyle);
-                        defaultEdgeStyle.lineWidth = 1.5;
+                        _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
+                        defaultEdgeStyle.lineWidth = 1.5
                     }
                 }
             }
-
 
 
             Pane {
                 z: 2
                 id: networkOutput
                 objectName: "networkOutput"
-                width: 0.25 * network.width
+                width: networkOutputText.implicitWidth + 60
                 height: network.height
                 anchors.right: network.right
-                anchors.bottom: network.bottom
                 visible: false
-                Material.elevation: 100
+                Material.elevation: 10
                 opacity: 0.8
 
                 ScrollView{
@@ -278,10 +297,52 @@ Window {
                 Component.onCompleted: {
                     networkOutputText.text = _menu.outputText
                 }
+
+                onVisibleChanged: {
+                    if (!networkOutput.visible && window.visibility === Window.Maximized) {
+                        height = network.height;
+                    }
+                }
             }
 
-        }
+            Button {
+                z: 3
+                id: testButton
+                visible: false
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                x: 20; y: 20
+                text: "Test network"
+                onClicked: {
+                    networkOutput.visible = false
+                    testOutput.visible = true
+                    testButton.visible = false
 
+                    _menu.handleTestButtonClick()
+                }
+            }
+
+            Pane {
+                z: 3
+                id: testOutput
+                objectName: "testOutput"
+                width: testText.implicitWidth + 60
+                height: testText.implicitHeight
+                visible: false
+                Material.elevation: 10
+                opacity: 0.8
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                x: 30; y: 30
+
+                Text {
+                    id: testText
+                    objectName: "testText"
+                    text: _menu.testText
+                    font.pixelSize: 14
+                    leftPadding: 5
+                    topPadding: 3
+                }
+            }
+        }
     }
 
 
@@ -302,6 +363,11 @@ Window {
         }
     }
 
-    onWindowStateChanged: _menu.drawNN(graph, graphView, network, defaultEdgeStyle)
+    onWindowStateChanged: {
+        if (!networkOutput.visible) {
+            networkOutput.height = network.height
+        }
+        _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
+    }
 
 }

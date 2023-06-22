@@ -11,7 +11,7 @@ public:
     virtual double activate(double x)=0;
     virtual double activateDerivative(double x)=0;
 
-    std::string get_name(){ return m_name; };
+    std::string getName(){ return m_name; };
 
     static ActivationFunction* create(std::string functionName);
 };

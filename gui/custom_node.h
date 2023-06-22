@@ -7,6 +7,7 @@
 class CustomRoundNode : public qan::Node
 {
     Q_OBJECT
+
 public:
     explicit CustomRoundNode(QObject* parent=nullptr) : qan::Node{parent} { }
     virtual ~CustomRoundNode() override = default;
