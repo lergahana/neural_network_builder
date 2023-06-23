@@ -4,13 +4,13 @@ find_package(Qt6 6.5 REQUIRED COMPONENTS Core Quick QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
-qt_add_executable(appzadnji
+qt_add_executable(interface
     main.cpp
-    theme.qrc
+    custom_nodes.qrc
 )
 
 
-qt_add_qml_module(appzadnji
+qt_add_qml_module(interface
     URI zadnji
     VERSION 1.0
     QML_FILES
@@ -22,7 +22,7 @@ qt_add_qml_module(appzadnji
         custom_node.cpp
 )
 
-set_target_properties(appzadnji PROPERTIES
+set_target_properties(interface PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -31,16 +31,16 @@ set_target_properties(appzadnji PROPERTIES
 )
 
 
-target_link_libraries(appzadnji
+target_link_libraries(interface
     PRIVATE Qt6::QuickControls2 Qt6::Quick Qt6::Core
     PUBLIC QuickQanava neural_network
 )
 
-target_include_directories(appzadnji
+target_include_directories(interface
     PUBLIC ${PROJECT_SOURCE_DIR}/neural_network/
 )
 
-install(TARGETS appzadnji
+install(TARGETS interface
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
