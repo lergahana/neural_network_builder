@@ -13,7 +13,7 @@ private:
     ActivationFunction* actFunction;
 
 public:
-    Layer(int numNeurons, int numWeights, ActivationFunction* actFunction = new Sigmoid());
+    Layer(int numNeurons = 1, int numWeights = 1, ActivationFunction* actFunction = new Sigmoid());
     ~Layer() = default;
 
     std::vector<Neuron>& getNeurons() { return neurons; };
@@ -23,9 +23,5 @@ public:
     int getNumNeurons() { return neurons.size(); };
 };
 
-struct LayerInfo {
-    int numNeurons = 1;
-    ActivationFunction* activationFunction = new Sigmoid();
-};
 
 #endif // LAYER_H

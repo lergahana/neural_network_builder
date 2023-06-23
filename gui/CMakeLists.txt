@@ -9,12 +9,12 @@ qt_add_executable(appzadnji
     theme.qrc
 )
 
+
 qt_add_qml_module(appzadnji
     URI zadnji
     VERSION 1.0
     QML_FILES
         Main.qml
-        CustomRoundNode.qml
     SOURCES
         network_builder.cpp
         network_builder.h

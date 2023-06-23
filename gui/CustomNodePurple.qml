@@ -5,7 +5,7 @@ import QuickQanava          2.0 as Qan
 import "qrc:/QuickQanava" as Qan
 
 Qan.NodeItem {
-    id: roundNode
+    id: purpleNode
     width: 40; height: 40
     minimumSize: Qt.size(30,30)
 

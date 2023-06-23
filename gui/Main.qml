@@ -144,6 +144,7 @@ Window {
                             testButton.visible = true
 
                             _menu.handleTrainButtonClick()
+                            _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
                         }
 
 

@@ -8,11 +8,12 @@
 #include <QString>
 #include <algorithm>
 
+
 NetworkBuilder::NetworkBuilder(std::vector<std::vector<double>>* data, int inputs, int outputs, int epochs, double learnRate)
     : m_data(data), m_numInputs(inputs), m_numOutputs(outputs), m_numEpochs(epochs), m_learningRate(learnRate)
 {
-    std::vector<LayerInfo> hidden;
-    hidden.push_back(LayerInfo());
+    std::vector<Layer*> hidden;
+    hidden.push_back(new Layer());
 
     m_network = new Network();
     m_network->initializeNetwork(inputs, hidden, outputs);
@@ -28,7 +29,7 @@ void NetworkBuilder::setNumLayers(int numLayers)
     {
         for (int i = lastHiddenLayer; i < numLayers; ++i)
         {
-            m_network->insertHiddenLayer(LayerInfo());
+            m_network->insertHiddenLayer(new Layer());
         }
     }
     // If the number of layers decreased, remove layers
@@ -45,16 +46,16 @@ void NetworkBuilder::setLayerNeurons(int layer, int numNeurons)
     // For the input layer, the number of input neurons is numInputs + 1
     if (layer == 0)
     {
-        m_network->setLayer(layer, Layer(numNeurons, m_numInputs + 1));
+        m_network->setLayer(layer, new Layer(numNeurons, m_numInputs + 1));
     }
     // For other layers, the number of input neurons depends on the previous layer
     else
     {
-        m_network->setLayer(layer, Layer(numNeurons, m_network->getNumNeurons(layer - 1)));
+        m_network->setLayer(layer, new Layer(numNeurons, m_network->getNumNeurons(layer - 1)));
     }
 
     // Fix the layer after the current one
-    m_network->setLayer(layer + 1, Layer(m_network->getNumNeurons(layer + 1), m_network->getNumNeurons(layer) + 1));
+    m_network->setLayer(layer + 1, new Layer(m_network->getNumNeurons(layer + 1), m_network->getNumNeurons(layer) + 1));
 
     emit numNeuronsChanged(numNeurons);
 }
@@ -107,6 +108,7 @@ void NetworkBuilder::handleTrainButtonClick()
     m_network->train(m_trainData, m_learningRate, m_numEpochs, m_numOutputs);
     QString s = QString::fromStdString("Training results...\n" + m_network->output);
     setOutputText(s);
+    setTrainingDraw(true);
     emit endTraining();
 }
 
@@ -151,7 +153,7 @@ void NetworkBuilder::drawNeuralNetwork(qan::Graph* graph, qan::GraphView* graphV
     graph->clearGraph();
     std::vector<std::vector<qan::Node*>> nodes;
 
-    int numRows = m_network->getLayers().size();
+    int numRows = m_network->getNumLayers();
     int circleWidth = 80;
     int spacing = 50;
     int numCircles = 1;
@@ -164,7 +166,7 @@ void NetworkBuilder::drawNeuralNetwork(qan::Graph* graph, qan::GraphView* graphV
         // After the input layer
         if (i > 0)
         {
-            numCircles = m_network->getLayers()[i - 1].getNeurons().size();
+            numCircles = m_network->getNumNeurons(i - 1);
             circleWidth = 40;
         }
 
@@ -173,7 +175,16 @@ void NetworkBuilder::drawNeuralNetwork(qan::Graph* graph, qan::GraphView* graphV
 
         for (int j = 0; j < numCircles; j++)
         {
-            qan::Node* node = graph->insertNode<CustomRoundNode>();
+            qan::Node* node = graph->insertNode<CustomNodePurple>();
+
+            // After training neurons color depands on activation of neuron
+            if(trainingDraw() && i > 0){
+                double activation = m_network->getLayer(i-1)->getNeurons()[j].getActivation();
+                if (activation < 0.5){
+                    graph->removeNode(node);
+                    node = graph->insertNode<CustomNodeBlue>();
+                }
+            }
 
             int circleX = startX + j * (circleWidth + spacing);
             int circleY = i * (circleWidth + spacing);

@@ -10,16 +10,16 @@
 class Network {
 private:
     int numLayers = 0;
-    std::vector<Layer> layers;
+    std::vector<Layer*> layers;
 
 public:
     Network();
     ~Network() = default;
 
-    void initializeNetwork(int numInputs, std::vector<LayerInfo> hiddenLayers, int numOutputs);
-    void addLayer(Layer layer);
-    void setLayer(int index, Layer layer);
-    void insertHiddenLayer(LayerInfo layer);
+    void initializeNetwork(int numInputs, std::vector<Layer*> hiddenLayers, int numOutputs);
+    void addLayer(Layer* layer);
+    void setLayer(int index, Layer* layer);
+    void insertHiddenLayer(Layer* layer);
     void removeHiddenLayers(int num);
 
     std::vector<double> forwardPropagate(std::vector<double> inputs);
@@ -30,13 +30,13 @@ public:
     int predict(std::vector<double> input);
     double accuracy_metric(std::vector<int> expect, std::vector<int> predict);
 
-    std::vector<Layer> getLayers() { return layers; };
+    std::vector<Layer*> getLayers() { return layers; };
     void setNumLayers() { numLayers = layers.size(); };
     void toString();
     std::string output;
 
     int getNumLayers() { return numLayers; };
-    int getNumNeurons(int index) { return layers[index].getNumNeurons(); };
+    int getNumNeurons(int index);
     Layer* getLayer(int index);
 };
 

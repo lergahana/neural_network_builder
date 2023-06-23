@@ -33,6 +33,7 @@ private:
     std::vector<std::vector<double>>* m_testData;
     int m_numOutputs;
     int m_numInputs;
+    bool m_trainingDraw = false;
 
 public:
     NetworkBuilder(std::vector<std::vector<double>>* data, int inputs, int outputs, int epochs, double learnRate);
@@ -43,10 +44,12 @@ public:
     QString testText() const { return m_testText; };
     double learningRate() const { return m_learningRate; };
     int numEpochs() const { return m_numEpochs; };
+    bool trainingDraw() const { return m_trainingDraw; };
 
     void setTestTrainData(std::vector<std::vector<double>>* data);
     void setNumOutputs(int num) { m_numOutputs = num; };
     void setNumInputs(int num) { m_numInputs = num; };
+    void setTrainingDraw(bool m_bool) { m_trainingDraw = m_bool; };
 
     int numOutputs() { return m_numOutputs; };
     int numInputs() { return m_numInputs; };

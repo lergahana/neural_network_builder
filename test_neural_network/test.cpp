@@ -45,15 +45,9 @@ int main(int argc, char* argv[]) {
 
     Network* network = new Network();
 
-    LayerInfo hidden;
-    hidden.numNeurons = 5;
-
-    std::cout << "Outputs: " << n_outputs << ", inputs: " << n_inputs << std::endl;
-
-
     // initialize a network
-    std::vector<LayerInfo> layers;
-    layers.push_back(hidden);
+    std::vector<Layer*> layers;
+    layers.push_back(new Layer(5));
 
     network->initializeNetwork(n_inputs, layers, n_outputs);
 
