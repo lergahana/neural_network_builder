@@ -9,18 +9,18 @@
 
 class Layer {
 private:
-    std::vector<Neuron> neurons;
-    ActivationFunction* actFunction;
+    std::vector<Neuron> m_neurons;
+    ActivationFunction* m_actFunction;
 
 public:
     Layer(int numNeurons = 1, int numWeights = 1, ActivationFunction* actFunction = new Sigmoid());
     ~Layer() = default;
 
-    std::vector<Neuron>& getNeurons() { return neurons; };
-    ActivationFunction* getActivationFunction() { return actFunction; };
-    void setActivationFunction(ActivationFunction* activationFunction);
+    std::vector<Neuron>& getNeurons() { return m_neurons; };
+    ActivationFunction* getActivationFunction() { return m_actFunction; };
+    void setActivationFunction(ActivationFunction* activationFunction) { m_actFunction = activationFunction; };
 
-    int getNumNeurons() { return neurons.size(); };
+    int getNumNeurons() { return m_neurons.size(); };
 };
 
 

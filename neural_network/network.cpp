@@ -13,20 +13,21 @@ Network::Network() {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
 
-void Network::initializeNetwork(int numInputs, std::vector<Layer*> hiddenLayers, int numOutputs) {
+void Network::initializeNetwork(int numInputs, std::vector<Layer> hiddenLayers, int numOutputs) {
+    layers = std::vector<Layer>();
     // First layer
-    Layer* firstLayer = new Layer(hiddenLayers[0]->getNumNeurons(), numInputs + 1, hiddenLayers[0]->getActivationFunction());
-    addLayer(firstLayer);
+    Layer firstLayer = Layer(hiddenLayers[0].getNumNeurons(), numInputs + 1, hiddenLayers[0].getActivationFunction());
+    layers.push_back(firstLayer);
 
     // Hidden layers
     for (int i = 0; i < hiddenLayers.size() - 1; i++) {
-        Layer* hiddenLayer = new Layer(hiddenLayers[i + 1]->getNumNeurons(), hiddenLayers[i]->getNumNeurons() + 1, hiddenLayers[i + 1]->getActivationFunction());
-        addLayer(hiddenLayer);
+        Layer hiddenLayer = Layer(hiddenLayers[i + 1].getNumNeurons(), hiddenLayers[i].getNumNeurons() + 1, hiddenLayers[i + 1].getActivationFunction());
+        layers.push_back(hiddenLayer);
     }
 
     // Last layer
-    Layer* lastLayer = new Layer(numOutputs, hiddenLayers.back()->getNumNeurons() + 1, hiddenLayers.back()->getActivationFunction());
-    addLayer(lastLayer);
+    Layer lastLayer = Layer(numOutputs, hiddenLayers.back().getNumNeurons() + 1, hiddenLayers.back().getActivationFunction());
+    layers.push_back(lastLayer);
 
     // Clear from memory
     hiddenLayers.clear();
@@ -34,44 +35,40 @@ void Network::initializeNetwork(int numInputs, std::vector<Layer*> hiddenLayers,
     setNumLayers();
 }
 
-void Network::addLayer(Layer* layer) {
-    layers.push_back(layer);
+void Network::changeLayer(int index, int numCurrentNeurons, int numInputNeurons) {
+    if (index >= 0 && index <= layers.size()) layers[index] = Layer(numCurrentNeurons, numInputNeurons, getLayer(index).getActivationFunction());
 }
 
-void Network::setLayer(int index, Layer* layer) {
-    layers[index] = layer;
-}
-
-Layer* Network::getLayer(int index) {
+Layer& Network::getLayer(int index) {
     return layers[index];
 }
 
 int Network::getNumNeurons(int index) {
     if (index < 0 || index > layers.size()) return 0;
-    return layers[index]->getNumNeurons();
+    return layers[index].getNumNeurons();
 }
 
-void Network::insertHiddenLayer(Layer* layer) {
-    Layer* output = layers.back();
-    // Remove output layer
+void Network::insertHiddenLayer(Layer layer) {
+    Layer output = layers.back();
+    // Remove output layerd
     layers.pop_back();
     // Add hidden layer
-    layers.push_back(new Layer(layer->getNumNeurons(), layers.back()->getNumNeurons() + 1, layer->getActivationFunction()));
+    layers.push_back(Layer(layer.getNumNeurons(), layers.back().getNumNeurons() + 1, layer.getActivationFunction()));
     // Add output layer
-    layers.push_back(new Layer(output->getNumNeurons(), layers.back()->getNumNeurons() + 1, output->getActivationFunction()));
+    layers.push_back(Layer(output.getNumNeurons(), layers.back().getNumNeurons() + 1, output.getActivationFunction()));
     setNumLayers();
 }
 
 void Network::removeHiddenLayers(int num) {
-    std::vector<Layer*> newLayers;
-    Layer* output = layers.back();
+    std::vector<Layer> newLayers;
+    Layer output = layers.back();
     int lastHiddenLayer = layers.size() - num - 1;
 
     for (int i = 0; i < lastHiddenLayer; i++) {
         newLayers.push_back(layers[i]);
     }
 
-    newLayers.push_back(new Layer(output->getNumNeurons(), layers[lastHiddenLayer]->getNumNeurons() + 1, output->getActivationFunction()));
+    newLayers.push_back(Layer(output.getNumNeurons(), layers[lastHiddenLayer].getNumNeurons() + 1, output.getActivationFunction()));
 
     layers.clear();
     layers = newLayers;
@@ -83,7 +80,7 @@ std::vector<double> Network::forwardPropagate(std::vector<double> inputs) {
     std::vector<double> newInputs;
     for (int i = 0; i < numLayers; i++) {
         newInputs.clear();
-        std::vector<Neuron>& layerNeurons = layers[i]->getNeurons();
+        std::vector<Neuron>& layerNeurons = layers[i].getNeurons();
 
         for (int n = 0; n < layerNeurons.size(); n++) {
             layerNeurons[n].activate(inputs);
@@ -98,7 +95,7 @@ std::vector<double> Network::forwardPropagate(std::vector<double> inputs) {
 void Network::backwardPropagateError(std::vector<double> expected) {
     // Start from last layer and propagate error to the first layer
     for (int i = numLayers - 1; i >= 0; i--) {
-        std::vector<Neuron>& layerNeurons = layers[i]->getNeurons();
+        std::vector<Neuron>& layerNeurons = layers[i].getNeurons();
         // Iterate over each neuron in this layer
         for (int n = 0; n < layerNeurons.size(); n++) {
             double error = 0.0;
@@ -108,7 +105,7 @@ void Network::backwardPropagateError(std::vector<double> expected) {
             }
             // All other layers
             else {
-                for (auto& neuron : layers[i + 1]->getNeurons()) {
+                for (auto& neuron : layers[i + 1].getNeurons()) {
                     error += (neuron.getWeights()[n] * neuron.getDelta());
                 }
             }
@@ -122,7 +119,7 @@ void Network::updateWeights(std::vector<double> inputs, double learningRate) {
     for (int i = 0; i < numLayers; i++) {
         newInputs.clear();
         if (i != 0) {
-            for (auto& neuron : layers[i - 1]->getNeurons()) {
+            for (auto& neuron : layers[i - 1].getNeurons()) {
                 newInputs.push_back(neuron.getOutput());
             }
         }
@@ -130,7 +127,7 @@ void Network::updateWeights(std::vector<double> inputs, double learningRate) {
             newInputs = std::vector<double>(inputs.begin(), inputs.end() - 1);
         }
 
-        std::vector<Neuron>& layerNeurons = layers[i]->getNeurons();
+        std::vector<Neuron>& layerNeurons = layers[i].getNeurons();
 
         for (int n = 0; n < layerNeurons.size(); n++) {
             std::vector<double>& weights = layerNeurons[n].getWeights();
@@ -144,11 +141,13 @@ void Network::updateWeights(std::vector<double> inputs, double learningRate) {
     }
 }
 
-void Network::train(std::vector<std::vector<double>>* trainingData, double learningRate, int numEpochs, int numOutputs) {
+void Network::train(std::vector<std::vector<double>> trainingData, double learningRate, int numEpochs, int numOutputs) {
+    output = "";
+    plot.clear();
     for (int e = 0; e < numEpochs; e++) {
         double sumError = 0;
 
-        for (const auto& row : *trainingData) {
+        for (const auto& row : trainingData) {
             std::vector<double> outputs = forwardPropagate(row);
             std::vector<double> expected(numOutputs, 0.0);
             // The index corresponding to the expected output class is set to 1.0, while all other elements remain 0.0
@@ -163,6 +162,7 @@ void Network::train(std::vector<std::vector<double>>* trainingData, double learn
         std::ostringstream stream;
         stream << std::fixed << std::setprecision(4) << "[>] Epoch " << (e + 1) << ": error = " << sumError << std::endl;
         output += stream.str();
+        if((e+1)%10 == 0) plot.push_back(sumError);
 
         // Uncomment to print to std output
         // std::cout << "[>] Epoch " << (e + 1) << ": error = " << sumError << std::endl;
@@ -189,20 +189,20 @@ void Network::toString() {
     for (int i = 0; i < layers.size(); i++) {
         std::string line(100, '-');
         std::cout << line << std::endl;
-        std::cout << "Number of neurons in layer: " << i + 1 << ": " << layers[i]->getNumNeurons() << std::endl;
-        std::cout << "Activation function in layer: " << i + 1 << ": " << layers[i]->getActivationFunction()->getName() << std::endl;
-        for (int j = 0; j < layers[i]->getNeurons().size(); j++) {
+        std::cout << "Number of neurons in layer " << i + 1 << ": " << layers[i].getNumNeurons() << std::endl;
+        std::cout << "Activation function in layer " << i + 1 << ": " << layers[i].getActivationFunction()->getName() << std::endl;
+        for (int j = 0; j < layers[i].getNeurons().size(); j++) {
             std::cout << "Neuron " << (j + 1) << "\n   weights: ";
-            std::vector<double> weights = layers[i]->getNeurons()[j].getWeights();
+            std::vector<double> weights = layers[i].getNeurons()[j].getWeights();
             for (size_t w = 0; w < weights.size(); ++w) {
                 std::cout << weights[w];
                 if (w < weights.size() - 1) {
                     std::cout << ", ";
                 }
             }
-            std::cout << "\t delta: " << layers[i]->getNeurons()[j].getDelta();
-            std::cout << "\t output: " << layers[i]->getNeurons()[j].getOutput();
-            std::cout << "\t activation: " << layers[i]->getNeurons()[j].getActivation();
+            std::cout << "\t delta: " << layers[i].getNeurons()[j].getDelta();
+            std::cout << "\t output: " << layers[i].getNeurons()[j].getOutput();
+            std::cout << "\t activation: " << layers[i].getNeurons()[j].getActivation();
             std::cout << std::endl;
         }
     }

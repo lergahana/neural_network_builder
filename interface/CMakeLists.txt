@@ -20,6 +20,8 @@ qt_add_qml_module(interface
         network_builder.h
         custom_node.h
         custom_node.cpp
+        chart.h
+        chart.cpp
 )
 
 set_target_properties(interface PROPERTIES

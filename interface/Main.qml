@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import QtQuick.Shapes
 import QtQml.Models
 
+import CustomChart 1.0
 import QuickQanava          2.0 as Qan
 import "qrc:/QuickQanava"   as Qan
 
@@ -19,9 +20,7 @@ Window {
     Material.theme: Material.Light
     Material.accent: Material.color(Material.Purple)
 
-    required property NetworkBuilder _menu
-    property var nodes: []
-    //property int MAXNODES: 10
+    required property NetworkBuilder networkBuilder
 
     RowLayout {
         width: window.width
@@ -29,11 +28,15 @@ Window {
 
         Rectangle {
             id: menu
+            objectName: "menu"
             width: 0.3*parent.width
             height: parent.height
             color: "#E8E9EB"
             Layout.fillHeight: true
             Layout.alignment: Qt.AlignTop
+            z: 3
+
+            onVisibleChanged: network.width = parent.width*0.7
 
             ScrollView{
                 anchors.fill: parent
@@ -63,15 +66,16 @@ Window {
 
                         value: 1
                         onValueChanged: {
-                            _menu.setNumLayers(value)
+                            networkBuilder.setNumLayers(value)
                             neuronsRepeater.model = value
                             actfuncRepeater.model = value
-                            _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
+                            networkBuilder.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
                         }
                     }
 
                     Repeater {
                         id: neuronsRepeater
+                        objectName: "neuronsRepeater"
                         model: 1
 
                         Column {
@@ -84,6 +88,7 @@ Window {
 
                             SpinBox {
                                 id: numNeurons
+                                objectName: "numNeurons"
                                 width: layersText.width
                                 topPadding: 2
 
@@ -93,10 +98,10 @@ Window {
                                 to: 10
                                 stepSize: 1
 
-                                value: _menu.getNumNeurons(index)
+                                value: networkBuilder.getNumNeurons(index)
                                 onValueChanged: {
-                                    _menu.setLayerNeurons(index, value)
-                                    _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
+                                    networkBuilder.setLayerNeurons(index, value)
+                                    networkBuilder.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
                                 }
                             }
                         }
@@ -104,6 +109,7 @@ Window {
 
                     Repeater {
                         id: actfuncRepeater
+                        objectName: "actfuncRepeater"
                         model: 1
 
                         Column {
@@ -114,21 +120,22 @@ Window {
                                 topPadding: 15
                             }
                             RadioButton {
+                                id: defaultFunction
                                 text: "sigmoid"
                                 checked: true
-                                onClicked: _menu.setLayerFunction(index, text)
+                                onClicked: networkBuilder.setLayerFunction(index, text)
                             }
 
                             RadioButton {
                                 text: "relu"
                                 topPadding: 2
-                                onClicked: _menu.setLayerFunction(index, text)
+                                onClicked: networkBuilder.setLayerFunction(index, text)
                             }
 
                             RadioButton {
                                 text: "tanh"
                                 topPadding: 2
-                                onClicked: _menu.setLayerFunction(index, text)
+                                onClicked: networkBuilder.setLayerFunction(index, text)
                             }
                         }
                     }
@@ -141,10 +148,10 @@ Window {
                             network.width = window.width
                             networkOutput.visible = true
                             hyperparameters.visible = false
-                            testButton.visible = true
+                            resetButton.visible = true
 
-                            _menu.handleTrainButtonClick()
-                            _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
+                            networkBuilder.handleTrainButtonClick()
+                            networkBuilder.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
                         }
 
 
@@ -156,10 +163,12 @@ Window {
 
         Rectangle {
             id: network
+            objectName: "network"
             height: parent.height
-            width: 0.7 * parent.width
+            width: parent.width*0.7
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignTop
+
 
             Item {
                 z: 2
@@ -197,7 +206,7 @@ Window {
 
                                 onValueChanged: {
                                     learningRateLabel.text = String(learningRate.value.toFixed(2))
-                                    _menu.setLearningRate(value)
+                                    networkBuilder.setLearningRate(value)
                                 }
                             }
 
@@ -235,7 +244,7 @@ Window {
 
                                 onValueChanged: {
                                     epochsLabel.text = String(epochs.value)
-                                    _menu.setNumEpochs(value)
+                                    networkBuilder.setNumEpochs(value)
                                 }
                             }
 
@@ -244,6 +253,7 @@ Window {
                                 text: String(epochs.value)
                                 font.pixelSize: 12
                                 bottomPadding: 3
+
                             }
                         }
 
@@ -251,11 +261,11 @@ Window {
                 }
             }
 
-
             Qan.GraphView {
                 z: 1
                 id: graphView
-                anchors.fill: network
+                width: network.width
+                height: network.height
                 navigable: true
                 grid: Qan.AbstractLineGrid
 
@@ -265,110 +275,91 @@ Window {
                     anchors.fill: parent
 
                     Component.onCompleted: {
-                        _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
                         defaultEdgeStyle.lineWidth = 1.5
                     }
                 }
             }
 
-
             Pane {
                 z: 2
                 id: networkOutput
                 objectName: "networkOutput"
-                width: networkOutputText.implicitWidth + 60
+                width: 250
                 height: network.height
-                anchors.right: network.right
                 visible: false
                 Material.elevation: 10
                 opacity: 0.8
+                anchors.right: network.right
+                anchors.bottom: Qt.BottomEdge
 
                 ScrollView{
                     id: scrollOutput
                     anchors.fill: parent
-                    Text {
-                        id: networkOutputText
-                        objectName: "networkOutputText"
-                        font.pixelSize: 14
-                        leftPadding: 5
-                        topPadding: 3
+                    contentHeight: chart.height + networkOutputText.height + textChart.height
+
+                    ColumnLayout{
+                        Text {
+                            id: textChart
+                            text: "Relative validation loss"
+                            font.pixelSize: 14
+                            leftPadding: 5
+                            topPadding: 3
+                        }
+
+                        ChartItem {
+                            id: chart
+                            objectName: "chart"
+                            width: 200
+                            height: 200
+                        }
+
+                        Text {
+                            id: networkOutputText
+                            objectName: "networkOutputText"
+                            font.pixelSize: 14
+                            leftPadding: 5
+                            topPadding: 3
+
+                        }
                     }
                 }
 
                 Component.onCompleted: {
-                    networkOutputText.text = _menu.outputText
+                    networkOutputText.text = networkBuilder.outputText
                 }
 
                 onVisibleChanged: {
-                    if (!networkOutput.visible && window.visibility === Window.Maximized) {
-                        height = network.height;
+                    if (window.visibility === Window.Maximized) {
+                        height = window.height;
                     }
                 }
             }
 
             Button {
                 z: 3
-                id: testButton
+                id: resetButton
                 visible: false
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 x: 20; y: 20
-                text: "Test network"
+                text: "Return"
                 onClicked: {
+                    resetButton.visible = false
+                    hyperparameters.visible = true
                     networkOutput.visible = false
-                    testOutput.visible = true
-                    testButton.visible = false
-
-                    _menu.handleTestButtonClick()
-                }
-            }
-
-            Pane {
-                z: 3
-                id: testOutput
-                objectName: "testOutput"
-                width: testText.implicitWidth + 60
-                height: testText.implicitHeight
-                visible: false
-                Material.elevation: 10
-                opacity: 0.8
-                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                x: 30; y: 30
-
-                Text {
-                    id: testText
-                    objectName: "testText"
-                    text: _menu.testText
-                    font.pixelSize: 14
-                    leftPadding: 5
-                    topPadding: 3
+                    menu.visible = true
+                    networkBuilder.handleResetButtonClick()
+                    networkBuilder.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
                 }
             }
         }
     }
 
-
-    function updateAllMenusSelected() {
-        allMenusSelected = true;
-        for (var i = 0; i < neuronsRepeater.count; i++){
-            if (!neuronsRepeater.itemAt(i).isSelected) {
-                allMenusSelected = false;
-                break;
-            }
-        }
-
-        for (var j = 0; j < actfuncRepeater.count; j++) {
-            if (!actfuncRepeater.itemAt(j).isSelected) {
-                allMenusSelected = false;
-                break;
-            }
-        }
-    }
 
     onWindowStateChanged: {
         if (!networkOutput.visible) {
             networkOutput.height = network.height
         }
-        _menu.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
+        networkBuilder.drawNeuralNetwork(graph, graphView, network, defaultEdgeStyle)
     }
 
 }

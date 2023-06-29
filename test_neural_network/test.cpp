@@ -46,14 +46,14 @@ int main(int argc, char* argv[]) {
     Network* network = new Network();
 
     // initialize a network
-    std::vector<Layer*> layers;
-    layers.push_back(new Layer(5));
+    std::vector<Layer> layers;
+    layers.push_back(Layer(5));
 
     network->initializeNetwork(n_inputs, layers, n_outputs);
 
 
     // train the network (forward propagation, backward propagation and weight updating)
-    network->train(&traindata, learn_rate, epochs, n_outputs);
+    network->train(traindata, learn_rate, epochs, n_outputs);
 
     // make a prediction on the test data
     std::cout << "[Prediction]" << std::endl;
